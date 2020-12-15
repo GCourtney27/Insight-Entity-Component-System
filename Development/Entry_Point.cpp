@@ -15,34 +15,22 @@ int main(int argc, char* argv[])
 	assert(pl1 != nullptr);
 	assert(pl1->Brightness == Brightness1);
 
-	float Color2[3] = { 4, 5, 6 };
-	float Brightness2 = 20.0f;
-	PointLight* pl2 = w.AddComponent<PointLight>(Actor, Brightness2, Color2);
-	assert(pl2 != nullptr);
+	StaticMesh* pSMCube = w.AddComponent<StaticMesh>(Actor, "Cube.fbx");
+	assert(pSMCube != nullptr);
+	assert(pSMCube->Path == "Cube.fbx");
 
-	ECS::ComponentUID_t Pl2ID = pl2->GetID();
-	PointLight* Pl = w.GetComponentById<PointLight>(Actor, Pl2ID);
-	assert(Pl->Brightness == pl2->Brightness);
+	StaticMesh* pSMPlane = w.AddComponent<StaticMesh>(Actor, "Plane.fbx");
+	assert(pSMPlane != nullptr);
+	assert(pSMPlane->Path == "Plane.fbx");
 
-	w.RemoveComponentById<PointLight>(Actor, Pl2ID);
-	PointLight* PlNULL = w.GetComponentById<PointLight>(Actor, Pl2ID);
-	assert(PlNULL == nullptr);
-
-
-	/*PointLight* Pl = w.GetComponent<PointLight>(Actor);
-	assert(Pl->Brightness == Brightness2);
-
-	w.RemoveComponent<PointLight>(Actor);
-	PointLight* comp = w.GetComponent<PointLight>(Actor);
-	assert(comp == nullptr);
-
-	TestComponent* TC = w.GetComponent<TestComponent>(Actor);
-	assert(TC == nullptr);
-
-	w.DestroyActor(Actor);
-	PointLight* c = w.GetComponent<PointLight>(Actor);
-	assert(c == nullptr);*/
-
+	ECS::ComponentUID_t SMPlaneId = pSMPlane->GetID();
+	StaticMesh* pSMPlaneRefById = w.GetComponentById<StaticMesh>(Actor, SMPlaneId);
+	assert(pSMPlaneRefById != nullptr);
+	assert(pSMPlaneRefById->Path == "Plane.fbx");
 	
+	w.RemoveComponentById<StaticMesh>(Actor, SMPlaneId);
+	StaticMesh* pSMPlaneRefById_REM = w.GetComponentById<StaticMesh>(Actor, SMPlaneId);
+	assert(pSMPlaneRefById_REM == nullptr);
+
 	return 0;
 }

@@ -25,9 +25,9 @@ namespace ECS {
 
 	protected:
 		ComponentBase()
-			: m_UID(s_ComponentID++)
 		{
 			::memset(this, 0, sizeof(ComponentBase<ComponentType>));
+			m_UID = s_ComponentID++;
 		}
 		virtual ~ComponentBase() = default;
 

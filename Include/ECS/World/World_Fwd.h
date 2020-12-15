@@ -78,15 +78,14 @@ namespace ECS {
 			if (Iter != m_WorldComponents.end())
 			{
 				auto ComponentMap = WorldHelpers::GetComponentMap<ComponentType>(Iter->second);
-				//auto ComponentMap = dynamic_cast<SpecializedMap*>(Iter->second);
-				auto MapIter = ComponentMap->find(Actor);
-				if (MapIter != ComponentMap->end())
+				auto ComponentMapActorLocationIter = ComponentMap->find(Actor);
+				if (ComponentMapActorLocationIter != ComponentMap->end())
 				{
 					// Contruct the component in the actors list of component instances.
-					ComponentMap->GetUnorderedMap()[Actor].emplace_back(Args...);
+					ComponentMapActorLocationIter->second.emplace_back(Args...);
 
 					// Return a pointer to the new component instance.
-					return &ComponentMap->GetUnorderedMap()[Actor].back();
+					return &ComponentMapActorLocationIter->second.back();
 				}
 			}
 			// If the component does not exist in the world create a new component map
@@ -131,14 +130,14 @@ namespace ECS {
 			{
 				// Find the actor that owns the component of that type.
 				auto ComponentMap = WorldHelpers::GetComponentMap<ComponentType>(Iter->second);
-				auto MapIter = ComponentMap->find(Owner);
-				if (MapIter != ComponentMap->end())
+				auto ComponentMapActorLocationIter = ComponentMap->find(Owner);
+				if (ComponentMapActorLocationIter != ComponentMap->end())
 				{
 					// Iterate over the components until we find the desired component.
 					//
 					// An actor could have multiple components of the same type so test their id
 					// to get the proper instance.
-					for (auto& RawComponent : MapIter->second)
+					for (auto& RawComponent : ComponentMapActorLocationIter->second)
 					{
 						if (RawComponent.GetID() == ComponentId)
 						{

@@ -45,6 +45,39 @@ struct PointLight : public ECS::ComponentBase<PointLight>
 	float Brightness = 0;
 };
 
+struct StaticMesh : public ECS::ComponentBase<StaticMesh>
+{
+	StaticMesh(const std::string& FilePath)
+	{
+		Path = FilePath;
+
+		for (uint16_t i = 0; i < c_NumVerts; ++i)
+			Vertices[i] = i* 3;
+		
+		for (uint16_t i = 0; i < c_NumIndices; ++i)
+			Indices[i] = i;
+	}
+	virtual ~StaticMesh() = default;
+
+	// TODO: Make sure the copy contructor isnt required for each component.
+	StaticMesh operator=(const StaticMesh & rhs)
+	{
+		StaticMesh Result(rhs.Path);
+		::memcpy(&Result.Vertices, static_cast<StaticMesh*>(this)->Vertices, sizeof(int) * c_NumVerts);
+		::memcpy(&Result.Indices, static_cast<StaticMesh*>(this)->Indices, sizeof(int) * c_NumIndices);
+
+		return Result;
+	}
+
+	std::string Path;
+	
+	static const int c_NumVerts = 20;
+	static const int c_NumIndices = 5;
+	int Vertices[c_NumVerts];
+	int Indices[c_NumIndices];
+
+};
+
 struct TestComponent : public ECS::ComponentBase<TestComponent>
 {
 	TestComponent() = default;

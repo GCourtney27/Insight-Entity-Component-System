@@ -33,7 +33,7 @@ namespace ECS
 	private:
 		typedef uint32_t	ArrayIndex;
 
-	protected:
+	public:
 		std::unordered_map<ComponentUID_t, std::pair<Actor_t, ArrayIndex>> m_ComponentMap;
 		std::vector<ComponentType> m_RawComponents;
 		uint32_t m_NextAvailableIndex;

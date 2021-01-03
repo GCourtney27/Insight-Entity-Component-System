@@ -2,5 +2,10 @@
 
 int main(int argc, char* argv[])
 {
-	return Debug::RunTests();
+	//Debug::RunTests();
+
+	Debug::RunPerfTests();
+
+	return 0;
 }
+

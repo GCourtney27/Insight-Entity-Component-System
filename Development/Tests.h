@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Timer.h"
 #include "Components.h"
 #include "ECS/ECS.h"
 
 #include <cassert>
-
 
 #define RUNTIME_ASSERT(expr) assert(expr);
 
@@ -93,6 +93,56 @@ namespace Debug
 		return 0;
 	}
 
+	void RunPerfTests()
+	{
+		// Component iteration speed.
+		// Loop over a lot of components and retrieve a value;
+		{
+			ECS::Actor_t DefaultActor;
+			std::vector<PointLight*> LightPointers;
+			ECS::GenericComponentMap<PointLight> LightMap;
 
+			// Fill each container with instances.
+			uint32_t InstCount = 10000;
+			for (size_t i = 0; i < InstCount; ++i)
+			{
+				float Fac = float(i);
+				float Color[3] = { Fac * 2, Fac * 4, Fac * 6 };
+				float Brightness = Fac;
+				LightPointers.push_back(new PointLight(Brightness, Color));
+				LightMap.AddComponent(DefaultActor, Brightness, Color);
+			}
+
+			// Test pointer version.
+			Perf::ManualTimer PointerIterTimer("Pointer Iteration");
+			{
+				PointerIterTimer.Start();
+				for (size_t i = 0; i < InstCount; ++i)
+				{
+					float Brightness = LightPointers[i]->Brightness;
+				}
+				PointerIterTimer.End();
+			}
+
+			// Test map version.
+			Perf::ManualTimer MapIterTimer("Map Iteration");
+			{
+				MapIterTimer.Start();
+				for (size_t i = 0; i < InstCount; ++i)
+				{
+					float Brightness = LightMap[uint32_t(i)].Brightness;
+				}
+				MapIterTimer.End();
+			}
+
+			// Make sure our optimized method is faster.
+			RUNTIME_ASSERT(PointerIterTimer.GetElapsedNanos() > MapIterTimer.GetElapsedNanos());
+
+			// Quick cleanup...
+			for (size_t i = 0; i < InstCount; ++i)
+				delete LightPointers[i];
+
+		}
+	}
 
 }

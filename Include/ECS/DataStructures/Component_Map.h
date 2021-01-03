@@ -1,13 +1,13 @@
 #pragma once
 
-#include <unordered_map>
-#include <any>
-
 #include "ECS/World/Actor_Fwd.h"
+#include "ECS/Component/Component_Fwd.h"
+
+#include <unordered_map>
+
 
 namespace ECS
 {
-
 	/*
 		* The base for a generic component map that an hold any data structure.
 		* NOT to be directly instantiated.
@@ -18,66 +18,102 @@ namespace ECS
 		ComponentMapBase() = default;
 		virtual ~ComponentMapBase() = default;
 
-		virtual void DestroyActor(const Actor_t& Actor) = 0;
+		virtual void DestroyActorRefs(const Actor_t& Actor) = 0;
 
 	};
 
 	/*
-		* Container for a list of components.
-		* An actor can have multiple instances of the same type of component, so 
-		  the raw component data is stored in a resizable vector.
+		A container for  list of componenet types.
+		* Components are garenteed to be linear in memory for a higher cache hit rate upon iteration.
 	*/
 	template <typename ComponentType>
 	class GenericComponentMap : public ComponentMapBase
 	{
-	protected:
-		std::unordered_map<Actor_t, std::vector<ComponentType>> m_Components;
+		friend class World;
+	private:
+		typedef uint32_t	ArrayIndex;
 
-	public:
-		GenericComponentMap()	= default;
+	protected:
+		std::unordered_map<ComponentUID_t, std::pair<Actor_t, ArrayIndex>> m_ComponentMap;
+		std::vector<ComponentType> m_RawComponents;
+		uint32_t m_NextAvailableIndex;
+
+		GenericComponentMap()
+			: m_NextAvailableIndex(0u)
+		{
+			// Verify th template argument is a valid component.
+			ValidateComponent<ComponentType>();
+		}
 
 		virtual ~GenericComponentMap()
 		{
-			printf("[WARNING] Component map being destroyed.\n");
+			size_t ComponentsSize = m_RawComponents.size() * sizeof(ComponentType);
+			size_t ComponentMapSize = m_ComponentMap.size() * (sizeof(ComponentUID_t) + sizeof(std::pair<Actor_t, ArrayIndex>));
+			printf("[WARNING] Generic ComponentMap being destroyed. Raw component memory [%zi] bytes | Component map [%zi] bytes\n", ComponentsSize, ComponentMapSize);
 		}
 
 		/*
-			Destroys an actor in the world.
-			Destroying one actor in the map will destroy all instances of this map's
-			component storage type.
+			Returns the size of the underlying component container in bytes.
 		*/
-		virtual void DestroyActor(const Actor_t& Actor) override
+		size_t GetContainerSize() const
 		{
-			auto ActorLocationIter = m_Components.find(Actor);
-			m_Components.erase(ActorLocationIter);
+			return m_RawComponents.size() * sizeof(ComponentType);
 		}
 
-		/*
-			Returns a reference to the underlying data structor for this component map.
-		*/
-		std::unordered_map<Actor_t, std::vector<ComponentType>>& GetUnorderedMap() { return m_Components; }
+		template <typename ... Args>
+		ComponentType* AddComponent(const Actor_t& Owner, Args ... args)
+		{
+			m_RawComponents.push_back(ComponentType(args...));
+			ComponentUID_t id = m_RawComponents[m_NextAvailableIndex].GetID();
+			m_ComponentMap[id] = std::make_pair(Owner, m_NextAvailableIndex);
+			m_NextAvailableIndex++;
 
-		/*
-			Returns a iterator to the beginning of the underlying component map.
-		*/
-		typename std::unordered_map<Actor_t, std::vector<ComponentType>>::iterator begin()	{ return m_Components.begin(); }
-		
-		/*
-			Returns a iterator to the end of the underlying component map.
-		*/
-		typename std::unordered_map<Actor_t, std::vector<ComponentType>>::iterator end()		{ return m_Components.end(); }
+			return &m_RawComponents[m_NextAvailableIndex - 1];
+		}
 
-		/*
-			Find a value in the underlying map given the actor key.
-		*/
-		typename std::unordered_map<Actor_t, std::vector<ComponentType>>::iterator find(Actor_t Key)	 	{ return m_Components.find(Key); }
-		
-		/*
-			Erases a element from the underlying map givven a iterator location.
-		*/
-		void erase(typename std::unordered_map<Actor_t, std::vector<ComponentType>>::iterator Location)	{ m_Components.erase(Location); }
+		void RemoveComponentById(ComponentUID_t Id)
+		{
+			ArrayIndex i = m_ComponentMap[Id].second;
+			std::vector<ComponentType>::iterator Iter = m_RawComponents.begin();
+			Iter += i;
+			m_RawComponents.erase(Iter);
+			m_ComponentMap.erase(Id);
+			m_NextAvailableIndex--;
+		}
 
+		ComponentType* GetComponentById(ComponentUID_t Id)
+		{
+			auto Iter = m_ComponentMap.find(Id);
+			if (Iter != m_ComponentMap.end())
+				return &m_RawComponents[Iter->second.second];
+			else
+				return nullptr;
+		}
 
+		ComponentType& operator[](uint32_t Index)
+		{
+			return m_RawComponents[Index];
+		}
+
+		virtual void DestroyActorRefs(const Actor_t& Actor) override
+		{
+			std::vector<ComponentType>::iterator Iter;
+			std::unordered_map<ComponentUID_t, std::pair<Actor_t, ArrayIndex>>::iterator MapIter = m_ComponentMap.begin();
+			int i = 0;
+			for (auto& [CompUID, Pair] : m_ComponentMap)
+			{
+				if (Pair.first == Actor)
+				{
+					Iter = m_RawComponents.begin() + Pair.second;
+					m_RawComponents.erase(Iter);
+					m_ComponentMap.erase(MapIter);
+				}
+				if (m_ComponentMap.size() > 0)	// We could have deleted the only component in this map if there was only one.
+					MapIter++;
+				else
+					break;
+			}
+		}
 	};
-
+	
 }

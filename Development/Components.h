@@ -1,6 +1,10 @@
+/*
+	Test components for debugging. 
+	NOT required to use the core ECS to operate.
+*/
 #pragma once
 
-#include "ECS/Component/Component_Util.h"
+#include "ECS/Component/Component_Fwd.h"
 
 
 struct PointLight : public ECS::ComponentBase<PointLight>
@@ -8,7 +12,9 @@ struct PointLight : public ECS::ComponentBase<PointLight>
 	PointLight() = default;
 	virtual ~PointLight() = default;
 
-	// TODO: Make sure the copy contructor isnt required for each component.
+	//
+	// TODO: Make sure the = operator isnt required for each component.
+	//		 It is required for std::vector::erase
 	PointLight operator=(const PointLight& rhs)
 	{
 		PointLight Result = {};

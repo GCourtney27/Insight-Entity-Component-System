@@ -31,7 +31,10 @@ namespace ECS {
 		(Key) ComponentHash [ComponentHash_t]			-			(Value) m_Components [Map]
 																				  |
 																				  v
-															(Key) Actor [Actor_t] - (Value) RawComponentData [Vector<UserComponentType>]
+															(Key) ComponentId [ComponentUID_t] - (Value) PackedKey [Owner [Actor_t] & Index [ArrayIndex]]
+																																			|
+																																			v
+																															RawComponentData [Vector<UserDefinedType>]
 	*/
 
 	namespace WorldHelpers
@@ -83,11 +86,22 @@ namespace ECS {
 			m_WorldComponents.clear();
 		}
 
+		template <typename SystemType, typename ... Args>
+		SystemType* CreateSystem(Args ... args)
+		{
+			
+		}
 
+		template <typename SystemType>
+		void DestroySystem()
+		{
+
+		}
 
 		/*
 			Adds a component to the world and returns a pointer to the new instance. 
 			Returns nullptr if creation fails.
+
 			@param Actor - The actor to attach the component too.
 			@param Args - Arguments for the componnets constructor.
 		*/

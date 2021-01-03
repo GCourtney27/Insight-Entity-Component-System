@@ -1,19 +1,21 @@
 #pragma once
 
-#include "Timer.h"
-#include "Components.h"
 #include "ECS/ECS.h"
+#include "Systems.h"
+#include "Components.h"
+
+#include "Timer.h"
 
 #include <cassert>
 
 #define RUNTIME_ASSERT(expr) assert(expr);
+
 
 namespace Debug
 {
 
 	int RunTests()
 	{
-
 		// Add components and remove them to a single actor.
 		{
 			ECS::World w;
@@ -89,6 +91,12 @@ namespace Debug
 			RUNTIME_ASSERT(pMesh_Actor1Ref->Path == PlaneMesh);
 		}
 
+		// Systems
+		{
+			ECS::World w;
+
+		}
+
 		printf("All Tests Passed!\n");
 		return 0;
 	}
@@ -103,13 +111,14 @@ namespace Debug
 			ECS::GenericComponentMap<PointLight> LightMap;
 
 			// Fill each container with instances.
-			uint32_t InstCount = 10000;
+			constexpr uint32_t InstCount = 10000;
 			for (size_t i = 0; i < InstCount; ++i)
 			{
 				float Fac = float(i);
 				float Color[3] = { Fac * 2, Fac * 4, Fac * 6 };
 				float Brightness = Fac;
-				LightPointers.push_back(new PointLight(Brightness, Color));
+
+				LightPointers.push_back(new PointLight(Brightness, Color)); // Allocate on the heap. Immediate red flag.
 				LightMap.AddComponent(DefaultActor, Brightness, Color);
 			}
 
@@ -141,8 +150,9 @@ namespace Debug
 			// Quick cleanup...
 			for (size_t i = 0; i < InstCount; ++i)
 				delete LightPointers[i];
-
 		}
+
+		printf("All performace tests passed!\n");
 	}
 
 }

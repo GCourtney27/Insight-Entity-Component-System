@@ -7,6 +7,7 @@
 
 namespace ECS 
 {
+
 	/*
 		Compile-time check to ensure a component is of a type the code ECS can understand.
 	*/

@@ -13,7 +13,7 @@ namespace ECS
 	typedef uint64_t ComponentHash_t;
 
 	/*
-		Identifier for each unique component instance.
+		Unique identifier for each component instance.
 	*/
 	typedef uint64_t ComponentUID_t;
 

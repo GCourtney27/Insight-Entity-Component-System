@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cassert>
 
 namespace ECS
 {
@@ -14,9 +14,6 @@ namespace ECS
 		{
 		}
 		virtual ~SystemBase() = default;
-
-		virtual void Execute() = 0;
-
 	};
 
 
@@ -27,22 +24,31 @@ namespace ECS
 		GenericComponentMap<ComponentType>* m_pComponentMapRef;
 
 	public:
-		GenericSystem(GenericComponentMap<ComponentType>* pExecutee, const char* DebugName)
-		: m_pComponentMapRef(pExecutee), SystemBase(DebugName)
+		GenericSystem(World& World, const char* DebugName = "")
+		: SystemBase(DebugName)
 		{
+			m_pComponentMapRef = World.GetComponentMap<ComponentType>();
 			assert(m_pComponentMapRef != nullptr); // Cannot make a system with a null component map to execute on.
 		}
 		virtual ~GenericSystem() {}
 
-		virtual void Execute() override
-		{
-			size_t NumComponents = m_pComponentMapRef->GetNumComponents();
-			for (size_t i = 0; i < NumComponents; ++i)
-			{
+		/*
+			Executes the system for all components.
+		*/
+		virtual void Execute() = 0;
 
-			}
+		const char* GetDebugName() const
+		{
+			return m_DebugName;
 		}
-		
+
+		/*
+			Returns a reference to the container holding the raw compoenent data.
+		*/
+		inline std::vector<ComponentType>& GetRawComponentData()
+		{
+			return (*m_pComponentMapRef).m_RawComponents;
+		}
 	};
 
 }

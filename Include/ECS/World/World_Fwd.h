@@ -14,8 +14,8 @@
 #endif // _MSC_VER
 
 
-#define ECS_NO_DISCARD [[nodiscard]]
-#define ECS_FORCE_INLINE __forceinline
+#define ECS_NO_DISCARD		[[nodiscard]]
+#define ECS_FORCE_INLINE	__forceinline
 
 
 
@@ -46,7 +46,7 @@ namespace ECS {
 			@param pBaseMap - A pointer to a 'World::m_WorldComponents' value.
 		*/
 		template <typename ComponentMapType>
-		ECS_FORCE_INLINE constexpr auto GetComponentMap(ComponentMapBase* pBaseMap)
+		ECS_FORCE_INLINE constexpr auto TryGetComponentMapByBase(ComponentMapBase* pBaseMap)
 		{
 			return dynamic_cast<GenericComponentMap<ComponentMapType>*>(pBaseMap);
 		}
@@ -61,7 +61,10 @@ namespace ECS {
 		*/
 		std::unordered_map<ComponentHash_t, ComponentMapBase*> m_WorldComponents;
 
-		std::size_t m_AvailableActorIndex;
+		/*
+			Incrementor that tracks the next available actor ids that can be used.
+		*/
+		uint32_t m_AvailableActorIndex;
 
 	public:
 		World()
@@ -69,7 +72,7 @@ namespace ECS {
 		{}
 		~World()
 		{
-			printf("Cleaning Up World (%i bytes).\n", static_cast<unsigned int>(sizeof(*this)));
+			//printf("Cleaning Up World (%i bytes).\n", static_cast<unsigned int>(sizeof(*this)));
 
 			Flush();
 		}
@@ -98,6 +101,17 @@ namespace ECS {
 
 		}
 
+		template <typename ComponentType>
+		auto GetComponentMap()
+		{
+			ComponentHash_t ComponentHash = ECS::ComponentHash<ComponentType>();
+			auto Iter = m_WorldComponents.find(ComponentHash);
+			if (Iter != m_WorldComponents.end())
+				return WorldHelpers::TryGetComponentMapByBase<ComponentType>(Iter->second);
+			else
+				return static_cast<GenericComponentMap<ComponentType>*>(nullptr);
+		}
+
 		/*
 			Adds a component to the world and returns a pointer to the new instance. 
 			Returns nullptr if creation fails.
@@ -121,13 +135,13 @@ namespace ECS {
 			auto Iter = m_WorldComponents.find(ComponentHash);
 			if (Iter != m_WorldComponents.end())
 			{
-				auto ComponentMap = WorldHelpers::GetComponentMap<ComponentType>(Iter->second);
+				auto ComponentMap = WorldHelpers::TryGetComponentMapByBase<ComponentType>(Iter->second);
 				return ComponentMap->AddComponent(Actor, Args...);
 			}
 			else
 			{
 				m_WorldComponents[ComponentHash] = new SpecializedMap();
-				auto ComponentMap = WorldHelpers::GetComponentMap<ComponentType>(m_WorldComponents[ComponentHash]);
+				auto ComponentMap = WorldHelpers::TryGetComponentMapByBase<ComponentType>(m_WorldComponents[ComponentHash]);
 				return ComponentMap->AddComponent(Actor, Args...);
 			}
 
@@ -139,47 +153,47 @@ namespace ECS {
 			Returns nullptr if no component exists for it.
 			@param ComponentId - The unique id of the component to get.
 		*/
-		template <typename ComponentType>
-		ECS_NO_DISCARD ComponentType* GetComponentById(const ComponentUID_t& ComponentId)
+		template <typename ComponentExecutionType>
+		ECS_NO_DISCARD ComponentExecutionType* GetComponentById(const ComponentUID_t& ComponentId)
 		{
 			// Verify input values.
-			ValidateComponent<ComponentType>();
+			ValidateComponent<ComponentExecutionType>();
 			
-			using SpecializedMap = GenericComponentMap<ComponentType>;
+			using SpecializedMap = GenericComponentMap<ComponentExecutionType>;
 			// Fetch the hashed id of the component type.
-			ComponentHash_t ComponentHash = ECS::ComponentHash<ComponentType>();
+			ComponentHash_t ComponentHash = ECS::ComponentHash<ComponentExecutionType>();
 
 			// Locate the component type in the world.
 			auto Iter = m_WorldComponents.find(ComponentHash);
 			if (Iter != m_WorldComponents.end())
 			{
 				// Find the actor that owns the component of that type.
-				auto ComponentMap = WorldHelpers::GetComponentMap<ComponentType>(Iter->second);
+				auto ComponentMap = WorldHelpers::TryGetComponentMapByBase<ComponentExecutionType>(Iter->second);
 				return ComponentMap->GetComponentById(ComponentId);
 			}
 
-			return static_cast<ComponentType*>(nullptr);
+			return static_cast<ComponentExecutionType*>(nullptr);
 		}
 
 		/*
 			Remove a component from an actor by its unique ID.
 			@param ComponentId - The unique id of the component to delete.
 		*/
-		template <typename ComponentType>
+		template <typename ComponentExecutionType>
 		void RemoveComponentById(const ComponentUID_t& ComponentId)
 		{
 			// Verify input values.
-			ValidateComponent<ComponentType>();
+			ValidateComponent<ComponentExecutionType>();
 			
 			// Fetch the hashed id of the component type.
-			ComponentHash_t ComponentHash = ECS::ComponentHash<ComponentType>();
+			ComponentHash_t ComponentHash = ECS::ComponentHash<ComponentExecutionType>();
 
 			// Find the component in the world.
 			auto Iter = m_WorldComponents.find(ComponentHash);
 			if (Iter != m_WorldComponents.end())
 			{
 				// Ge the map and find the actor holding the instances of the components.
-				auto ComponentMap = WorldHelpers::GetComponentMap<ComponentType>(Iter->second);
+				auto ComponentMap = WorldHelpers::TryGetComponentMapByBase<ComponentExecutionType>(Iter->second);
 				ComponentMap->RemoveComponentById(ComponentId);
 			}
 		}

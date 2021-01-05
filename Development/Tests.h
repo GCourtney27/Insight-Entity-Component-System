@@ -91,12 +91,6 @@ namespace Debug
 			RUNTIME_ASSERT(pMesh_Actor1Ref->Path == PlaneMesh);
 		}
 
-		// Systems
-		{
-			ECS::World w;
-
-		}
-
 		printf("All Tests Passed!\n");
 		return 0;
 	}
@@ -130,7 +124,7 @@ namespace Debug
 				{
 					float Brightness = LightPointers[i]->Brightness;
 				}
-				PointerIterTimer.End();
+				PointerIterTimer.Stop();
 			}
 
 			// Test map version.
@@ -141,7 +135,7 @@ namespace Debug
 				{
 					float Brightness = LightMap[uint32_t(i)].Brightness;
 				}
-				MapIterTimer.End();
+				MapIterTimer.Stop();
 			}
 
 			// Make sure our optimized method is faster.
@@ -151,6 +145,51 @@ namespace Debug
 			for (size_t i = 0; i < InstCount; ++i)
 				delete LightPointers[i];
 		}
+
+
+
+		// Geometry Systems
+		{
+			ECS::World w;
+			ECS::Actor_t Actor1 = w.CreateActor();
+
+			constexpr uint32_t InstCount = 10000;
+			char Path[64];
+			for (size_t i = 0; i < InstCount; ++i)
+			{
+				sprintf_s(Path, "Path: %zi", i);
+				w.AddComponent<StaticMesh>(Actor1, Path);
+			}
+
+			GeometryProcessor GeomProcess(w);
+			Perf::ManualTimer Timer("GeometryProcessor::Execute");
+			Timer.Start();
+			GeomProcess.Execute();
+			Timer.Stop();
+		}		
+
+		// Light System
+		{
+			ECS::World w;
+			ECS::Actor_t DefaultActor = w.CreateActor();
+
+			constexpr uint32_t InstCount = 10000;
+			for (size_t i = 0; i < InstCount; ++i)
+			{
+				float Fac = float(i);
+				float Color[3] = { Fac * 2, Fac * 4, Fac * 6 };
+				float Brightness = Fac;
+
+				w.AddComponent<PointLight>(DefaultActor, Brightness, Color);
+			}
+
+			LightProcessor LightProcessor(w);
+			Perf::ManualTimer Timer("LightProcessor::Execute");
+			Timer.Start();
+			LightProcessor.Execute();
+			Timer.Stop();
+		}
+
 
 		printf("All performace tests passed!\n");
 	}

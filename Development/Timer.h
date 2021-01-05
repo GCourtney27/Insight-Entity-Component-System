@@ -26,11 +26,11 @@ namespace Perf
 		/*
 			Tracks the end time of the timer and calculates the result.
 		*/
-		inline void End()
+		inline void Stop()
 		{
 			m_End = std::chrono::steady_clock::now();
 			m_Time = static_cast<double>((m_End - m_Start).count());
-
+			
 			printf("Scope: (%s) executed in: (%f nano seconds)\n", m_ScopeName, m_Time);
 		}
 

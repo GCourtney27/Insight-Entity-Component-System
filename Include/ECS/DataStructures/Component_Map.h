@@ -53,6 +53,8 @@ namespace ECS
 		};
 		static_assert(sizeof(PackedKey) == 8, "Packed key not aligned correctly.");
 
+
+
 	public:
 		/*
 			Key value paur for each unique component and its index in the raw component array.
@@ -79,9 +81,9 @@ namespace ECS
 
 		virtual ~GenericComponentMap()
 		{
-			size_t ComponentsSize = m_RawComponents.size() * sizeof(ComponentType);
-			size_t ComponentMapSize = m_ComponentMap.size() * (sizeof(ComponentUID_t) + sizeof(std::pair<Actor_t, ArrayIndex>));
-			printf("[WARNING] Generic ComponentMap being destroyed. Raw component memory [%zi] bytes | Component map [%zi] bytes\n", ComponentsSize, ComponentMapSize);
+			size_t ComponentsSize	= m_RawComponents.size() * sizeof(ComponentType);
+			size_t ComponentMapSize	= m_ComponentMap.size() * (sizeof(ComponentUID_t) + sizeof(std::pair<Actor_t, ArrayIndex>));
+			//printf("[WARNING] Generic ComponentMap being destroyed. Raw component memory [%zi] bytes | Component map [%zi] bytes\n", ComponentsSize, ComponentMapSize);
 		}
 
 		ComponentType& operator[](uint32_t Index)
@@ -184,3 +186,5 @@ namespace ECS
 		}
 	};
 }
+
+// eof

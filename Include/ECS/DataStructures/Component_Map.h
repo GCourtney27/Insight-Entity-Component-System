@@ -130,7 +130,7 @@ namespace ECS
 		ComponentType* AddComponent(const Actor_t& Owner, Args ... args)
 		{
 			m_RawComponents.push_back(ComponentType(args...));
-			ComponentUID_t id = m_RawComponents[m_NextAvailableIndex].GetID();
+			ComponentUID_t id = m_RawComponents[m_NextAvailableIndex].GetId();
 			m_ComponentMap[id] = PackedKey{ Owner, m_NextAvailableIndex };
 			m_NextAvailableIndex++;
 

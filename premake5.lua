@@ -4,14 +4,15 @@ workspace ("InsightECS")
 
 	configurations
 	{
-		"Develop-Exe",
+		"Develop-Exe-Debug",
+		"Develop-Exe-Release",
+		"Develop-Exe-Distribution",
 	}
 
 	buildFolder = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 project ("Develop")
-	filter "configurations:*Exe"
-		kind "ConsoleApp"
+	kind "ConsoleApp"
 	location ("") -- Root Directory
 	language ("C++")
 	cppdialect ("C++17")
@@ -33,13 +34,19 @@ project ("Develop")
 		"Include/",
 	}
 
-filter "configurations:Develop-Exe"
-	defines "_DEVELOPMENT"
+filter "configurations:Develop-Exe-Debug"
+	defines "_DEBUG"
 	runtime "Debug"
-	symbols "on"
+	symbols "On"
 	
-filter "configurations:Develop-Lib"
+filter "configurations:Develop-Exe-Release"
 	defines "_RELEASE"
 	runtime "Release"
-	optimize "on"
-	symbols "on"
+	optimize "On"
+	symbols "On"
+
+filter "configurations:Develop-Exe-Distribution"
+	defines "_DISTRIBUTION"
+	runtime "Release"
+	optimize "On"
+	symbols "Off"

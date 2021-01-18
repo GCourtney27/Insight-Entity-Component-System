@@ -16,7 +16,7 @@ namespace Debug
 
 	int RunTests()
 	{
-		// Add components and remove them to a single actor.
+		// Add components and remove them for a single actor.
 		{
 			ECS::World w;
 			PointLight* pLight = 0;
@@ -33,12 +33,12 @@ namespace Debug
 			assert(Light1->Brightness == Brightness1);
 
 			// Get the component by its uid.
-			pLight = w.GetComponentById<PointLight>(Light1->GetID());
+			pLight = w.GetComponentById<PointLight>(Light1->GetId());
 			RUNTIME_ASSERT(pLight != nullptr);
 
 			// Remove the component and verify it is destroyed.
-			w.RemoveComponentById<PointLight>(Light1->GetID());
-			pLight = w.GetComponentById<PointLight>(Light1->GetID());
+			w.RemoveComponentById<PointLight>(Light1->GetId());
+			pLight = w.GetComponentById<PointLight>(Light1->GetId());
 			RUNTIME_ASSERT(pLight == nullptr);
 		}
 
@@ -51,13 +51,13 @@ namespace Debug
 			float Color1[3] = { 1, 2, 3 };
 			float Brightness1 = 10.0f;
 			PointLight* Light1 = w.AddComponent<PointLight>(Actor, Brightness1, Color1);
-			ECS::ComponentUID_t LightID = Light1->GetID();
+			ECS::ComponentUID_t LightID = Light1->GetId();
 			assert(Light1->Brightness == Brightness1);
 
 			// Add a mesh component to the actor.
 			const char* c_Path = "Plane.fbx";
 			StaticMesh* Mesh = w.AddComponent<StaticMesh>(Actor, c_Path);
-			ECS::ComponentUID_t MeshID = Mesh->GetID();
+			ECS::ComponentUID_t MeshID = Mesh->GetId();
 			RUNTIME_ASSERT(Mesh->Path == c_Path);
 
 			// Destroy the actor
@@ -78,11 +78,11 @@ namespace Debug
 
 			const char* PlaneMesh = "Plane.fbx";
 			StaticMesh* Mesh_Actor1 = w.AddComponent<StaticMesh>(Actor1, PlaneMesh);
-			ECS::ComponentUID_t MeshID_Actor1 = Mesh_Actor1->GetID();
+			ECS::ComponentUID_t MeshID_Actor1 = Mesh_Actor1->GetId();
 
 			const char* CubeMesh = "Cube.fbx";
 			StaticMesh* Mesh_Actor2 = w.AddComponent<StaticMesh>(Actor2, CubeMesh);
-			ECS::ComponentUID_t MeshID_Actor2 = Mesh_Actor2->GetID();
+			ECS::ComponentUID_t MeshID_Actor2 = Mesh_Actor2->GetId();
 
 			StaticMesh* pMesh_Actor2Ref = w.GetComponentById<StaticMesh>(MeshID_Actor2);
 			RUNTIME_ASSERT(pMesh_Actor2Ref->Path == CubeMesh);

@@ -27,12 +27,13 @@ namespace ECS
 	{
 	protected:
 		ComponentUID_t m_UID;
+		Actor_t m_Owner;
 	public:
 
 		/*
 			returns the components unique ID.
 		*/
-		inline ComponentUID_t GetID() const noexcept(true) { return m_UID; }
+		inline ComponentUID_t GetId() const noexcept(true) { return m_UID; }
 
 		/*
 			Set the components unique ID.
@@ -41,7 +42,7 @@ namespace ECS
 
 		bool operator ==(const ComponentType& rhs)
 		{
-			return this->GetID() == rhs.GetID();
+			return this->GetId() == rhs.GetID();
 		}
 
 

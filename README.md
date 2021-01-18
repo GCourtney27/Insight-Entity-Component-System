@@ -19,5 +19,5 @@ while(AppIsRuning) <br/>
   GeometrySystem.Execute(); <br/>
 } <br/>
 
-World.RemoveComponentById<StatiMeshComponent(pMesh->GetId()); <br/>
+World.RemoveComponentById<StaticMeshComponent>(pMesh->GetId()); <br/>
 World.DestroyActor(Actor); <br/>

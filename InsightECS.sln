@@ -5,11 +5,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Develop", "Develop.vcxproj"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Develop-Exe|x64 = Develop-Exe|x64
+		Develop-Exe-Debug|x64 = Develop-Exe-Debug|x64
+		Develop-Exe-Distribution|x64 = Develop-Exe-Distribution|x64
+		Develop-Exe-Release|x64 = Develop-Exe-Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe|x64.ActiveCfg = Develop-Exe|x64
-		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe|x64.Build.0 = Develop-Exe|x64
+		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe-Debug|x64.ActiveCfg = Develop-Exe-Debug|x64
+		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe-Debug|x64.Build.0 = Develop-Exe-Debug|x64
+		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe-Distribution|x64.ActiveCfg = Develop-Exe-Distribution|x64
+		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe-Distribution|x64.Build.0 = Develop-Exe-Distribution|x64
+		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe-Release|x64.ActiveCfg = Develop-Exe-Release|x64
+		{1450616A-802F-E005-8947-6BDCF5A54667}.Develop-Exe-Release|x64.Build.0 = Develop-Exe-Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -79,18 +79,6 @@ namespace ECS {
 			m_EntityAdminComponents.clear();
 		}
 
-		template <typename SystemType, typename ... Args>
-		SystemType* CreateSystem(Args ... args)
-		{
-			
-		}
-
-		template <typename SystemType>
-		void DestroySystem()
-		{
-
-		}
-
 		template <typename ComponentType>
 		auto GetComponentMap() const 
 		{

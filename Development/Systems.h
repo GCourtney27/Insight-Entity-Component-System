@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ECS/World/System_Fwd.h"
+#include "ECS/EntityAdmin/SystemFwd.h"
 #include "Components.h"
 #include "Timer.h"
 
@@ -8,8 +8,8 @@
 class GeometryProcessor : ECS::GenericSystem<StaticMesh>
 {
 public:
-	GeometryProcessor(ECS::World& World) 
-	: GenericSystem<StaticMesh>(World, "GeometryProcessor")
+	GeometryProcessor(ECS::EntityAdmin& EntityAdmin) 
+	: GenericSystem<StaticMesh>(EntityAdmin, "GeometryProcessor")
 	{
 
 	}
@@ -34,10 +34,9 @@ public:
 class LightProcessor : ECS::GenericSystem<PointLight>
 {
 public:
-	LightProcessor(ECS::World& World)
-		: GenericSystem<PointLight>(World, "LightProcessor")
+	LightProcessor(ECS::EntityAdmin& EntityAdmin)
+		: GenericSystem<PointLight>(EntityAdmin, "LightProcessor")
 	{
-
 	}
 	virtual ~LightProcessor() {}
 
@@ -46,7 +45,7 @@ public:
 	{
 		// All stats captured on set iteration with 10,000 elements.
 		//
-		// For the best performance it is recomended iteration be done with rage based for loop as shown below.
+		// For the best performance it is recomended iteration be done with rage-based for-loop as shown below.
 		auto& Vec = GetRawComponentData();
 		for (auto& Comp : Vec) 
 		{

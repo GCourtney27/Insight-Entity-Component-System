@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ECS/World/Actor_Fwd.h"
-#include "ECS/Component/Component_Fwd.h"
+#include "ECS/EntityAdmin/EntityFwd.h"
+#include "ECS/Component/ComponentFwd.h"
 
 #include <unordered_map>
 
@@ -14,11 +14,12 @@ namespace ECS
 	*/
 	class ComponentMapBase
 	{
-	public:
+		friend class EntityAdmin;
+	protected:
 		ComponentMapBase() = default;
 		virtual ~ComponentMapBase() = default;
 
-		virtual void DestroyActorRefs(const Actor_t& Actor) = 0;
+		virtual void DestroyEntityRefs(const Entity_t& Entity) = 0;
 
 	};
 
@@ -29,7 +30,6 @@ namespace ECS
 	template <typename ComponentType>
 	class GenericComponentMap : public ComponentMapBase
 	{
-		friend class World;
 	private:
 		/*
 			An index into the array of raw components.
@@ -45,7 +45,7 @@ namespace ECS
 			/*
 				Owner of the component.
 			*/
-			Actor_t		Owner;
+			Entity_t		Owner;
 			/*
 				Index of the component in the raw component array.
 			*/
@@ -82,8 +82,8 @@ namespace ECS
 		virtual ~GenericComponentMap()
 		{
 			size_t ComponentsSize	= m_RawComponents.size() * sizeof(ComponentType);
-			size_t ComponentMapSize	= m_ComponentMap.size() * (sizeof(ComponentUID_t) + sizeof(std::pair<Actor_t, ArrayIndex>));
-			//printf("[WARNING] Generic ComponentMap being destroyed. Raw component memory [%zi] bytes | Component map [%zi] bytes\n", ComponentsSize, ComponentMapSize);
+			size_t ComponentMapSize	= m_ComponentMap.size() * (sizeof(ComponentUID_t) + sizeof(std::pair<Entity_t, ArrayIndex>));
+			DebugLog("[WARNING] Generic ComponentMap being destroyed. Raw component memory [%zi] bytes | Component map [%zi] bytes\n", ComponentsSize, ComponentMapSize);
 		}
 
 		ComponentType& operator[](uint32_t Index)
@@ -110,7 +110,7 @@ namespace ECS
 		/*
 			Returns the number of raw components in the map.
 		*/
-		inline size_t GetNumComponents() const
+		ECS_FORCE_INLINE size_t GetNumComponents() const
 		{
 			return m_RawComponents.size();
 		}
@@ -118,7 +118,7 @@ namespace ECS
 		/*
 			Returns the size of the underlying component container in bytes.
 		*/
-		inline size_t GetContainerSize() const
+		ECS_FORCE_INLINE size_t GetContainerSize() const
 		{
 			return m_RawComponents.size() * sizeof(ComponentType);
 		}
@@ -127,7 +127,7 @@ namespace ECS
 			Adds a component to the component map and returns a pointer to it.
 		*/
 		template <typename ... Args>
-		ComponentType* AddComponent(const Actor_t& Owner, Args ... args)
+		ComponentType* AddComponent(const Entity_t& Owner, Args ... args)
 		{
 			m_RawComponents.push_back(ComponentType(args...));
 			ComponentUID_t id = m_RawComponents[m_NextAvailableIndex].GetId();
@@ -163,16 +163,16 @@ namespace ECS
 		}
 
 		/*
-			Destroys all references of an actor and its components in this component map.
+			Destroys all references of an Entity and its components in this component map.
 		*/
-		virtual void DestroyActorRefs(const Actor_t& Actor) override
+		virtual void DestroyEntityRefs(const Entity_t& Entity) override
 		{
 			std::vector<ComponentType>::iterator Iter;
 			std::unordered_map<ComponentUID_t, PackedKey>::iterator MapIter = m_ComponentMap.begin();
 			
 			for (auto& [CompUID, PackedVal] : m_ComponentMap)
 			{
-				if (PackedVal.Owner == Actor)
+				if (PackedVal.Owner == Entity)
 				{
 					Iter = m_RawComponents.begin() + PackedVal.Index;
 					m_RawComponents.erase(Iter);

@@ -8,16 +8,16 @@ Visual Studio 2019 <br/>
 x64 compatible CPU <br/>
 
 ## Example Usage
-ECS::World World; <br/>
-Actor_t Actor = World.CreateActor(); <br/>
-StaticMeshComponent* pMesh = World.AddComponent<StaticMeshComponent>(Actor, {}, {}); <br/>
-ScriptComponent* pScript = World.AddComponent<ScriptComponent>(Actor, "Path/To/File.hi"); <br/>
-GeometryProcessingSystem GeometrySystem(World); <br/>
+ECS::EntityAdmin EntityAdmin; <br/>
+Entity_t Entity = EntityAdmin.CreateEntity(); <br/>
+StaticMeshComponent* pMesh = EntityAdmin.AddComponent<StaticMeshComponent>(Entity, {}, {}); <br/>
+ScriptComponent* pScript = EntityAdmin.AddComponent<ScriptComponent>(Entity, "Path/To/File.hi"); <br/>
+GeometryProcessingSystem GeometrySystem(EntityAdmin); <br/>
   
 while(AppIsRuning) <br/>
 { <br/>
   GeometrySystem.Execute(); <br/>
 } <br/>
 
-World.RemoveComponentById<StaticMeshComponent>(pMesh->GetId()); <br/>
-World.DestroyActor(Actor); <br/>
+EntityAdmin.RemoveComponentById<StaticMeshComponent\(pMesh->GetId()); <br/>
+EntityAdmin.DestroyEntity(Entity); <br/>

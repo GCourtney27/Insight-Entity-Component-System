@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ECS/Core/Core.h"
+
 #include <stdio.h>
 
 namespace ECS

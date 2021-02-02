@@ -4,6 +4,7 @@ workspace ("InsightECS")
 
 	configurations
 	{
+		"Develop-Exe",
 		"Develop-Exe-Debug",
 		"Develop-Exe-Release",
 		"Develop-Exe-Distribution",
@@ -32,21 +33,28 @@ project ("Develop")
 	includedirs
 	{
 		"Include/",
+	
 	}
+	
+filter "configurations:Develop-Exe"
+	defines {"ECS_DEBUG", "ECS_DEVELOPMENT" }
+	runtime "Debug"
+	symbols "On"
+	
 
 filter "configurations:Develop-Exe-Debug"
-	defines "_DEBUG"
+	defines {"ECS_DEBUG" }
 	runtime "Debug"
 	symbols "On"
 	
 filter "configurations:Develop-Exe-Release"
-	defines "_RELEASE"
+	defines "ECS_RELEASE"
 	runtime "Release"
 	optimize "On"
 	symbols "On"
 
 filter "configurations:Develop-Exe-Distribution"
-	defines "_DISTRIBUTION"
+	defines "ECS_DISTRIBUTION"
 	runtime "Release"
 	optimize "On"
 	symbols "Off"

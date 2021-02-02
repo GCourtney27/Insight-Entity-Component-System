@@ -6,9 +6,6 @@
 
 #include "Timer.h"
 
-#include <cassert>
-
-#define RUNTIME_ASSERT(expr) assert(expr);
 
 
 namespace Debug
@@ -16,82 +13,105 @@ namespace Debug
 
 	int RunTests()
 	{
-		// Add components and remove them for a single actor.
+		// Add components and remove them for a single Entity.
 		{
-			ECS::World w;
+			ECS::EntityAdmin w;
 			PointLight* pLight = 0;
 
-			// Create an actor.
-			ECS::Actor_t Actor = w.CreateActor();
-			bool ValidActor = ECS::IsValidActor(Actor);
-			RUNTIME_ASSERT(ValidActor);
+			// Create an Entity.
+			ECS::Entity_t Entity = w.CreateEntity();
+			bool ValidEntity = ECS::IsValidEntity(Entity);
+			RuntimeAssert(ValidEntity);
 
-			// Add a component to the actor.
+			// Add a component to the Entity.
 			float Color1[3] = { 1, 2, 3 };
 			float Brightness1 = 10.0f;
-			PointLight* Light1 = w.AddComponent<PointLight>(Actor, Brightness1, Color1);
+			PointLight* Light1 = w.AddComponent<PointLight>(Entity, Brightness1, Color1);
 			assert(Light1->Brightness == Brightness1);
 
 			// Get the component by its uid.
 			pLight = w.GetComponentById<PointLight>(Light1->GetId());
-			RUNTIME_ASSERT(pLight != nullptr);
+			RuntimeAssert(pLight != nullptr);
 
 			// Remove the component and verify it is destroyed.
 			w.RemoveComponentById<PointLight>(Light1->GetId());
 			pLight = w.GetComponentById<PointLight>(Light1->GetId());
-			RUNTIME_ASSERT(pLight == nullptr);
+			RuntimeAssert(pLight == nullptr);
 		}
 
-		// Destroy an actor.
+		// Destroy an Entity.
 		{
-			ECS::World w;
-			ECS::Actor_t Actor = w.CreateActor();
+			ECS::EntityAdmin w;
+			ECS::Entity_t Entity = w.CreateEntity();
 
-			// Add a light component to the actor.
+			// Add a light component to the Entity.
 			float Color1[3] = { 1, 2, 3 };
 			float Brightness1 = 10.0f;
-			PointLight* Light1 = w.AddComponent<PointLight>(Actor, Brightness1, Color1);
+			PointLight* Light1 = w.AddComponent<PointLight>(Entity, Brightness1, Color1);
 			ECS::ComponentUID_t LightID = Light1->GetId();
 			assert(Light1->Brightness == Brightness1);
 
-			// Add a mesh component to the actor.
+			// Add a mesh component to the Entity.
 			const char* c_Path = "Plane.fbx";
-			StaticMesh* Mesh = w.AddComponent<StaticMesh>(Actor, c_Path);
+			StaticMesh* Mesh = w.AddComponent<StaticMesh>(Entity, c_Path);
 			ECS::ComponentUID_t MeshID = Mesh->GetId();
-			RUNTIME_ASSERT(Mesh->Path == c_Path);
+			RuntimeAssert(Mesh->Path == c_Path);
 
-			// Destroy the actor
-			w.DestroyActor(Actor);
+			// Destroy the Entity
+			w.DestroyEntity(Entity);
 
-			// Verify the components no longer exist in the world.
+			// Verify the components no longer exist in the EntityAdmin.
 			StaticMesh* pMesh = w.GetComponentById<StaticMesh>(MeshID);
 			PointLight* pLight = w.GetComponentById<PointLight>(LightID);
-			RUNTIME_ASSERT(!pMesh && !pLight);
+			RuntimeAssert(!pMesh && !pLight);
 		}
 
-		// Add two actors with the same mesh type.
+		// Add two Entitys with the same mesh type.
 		// (Test if there are component clashes)
 		{
-			ECS::World w;
-			ECS::Actor_t Actor1 = w.CreateActor();
-			ECS::Actor_t Actor2 = w.CreateActor();
+			ECS::EntityAdmin w;
+			ECS::Entity_t Entity1 = w.CreateEntity();
+			ECS::Entity_t Entity2 = w.CreateEntity();
 
 			const char* PlaneMesh = "Plane.fbx";
-			StaticMesh* Mesh_Actor1 = w.AddComponent<StaticMesh>(Actor1, PlaneMesh);
-			ECS::ComponentUID_t MeshID_Actor1 = Mesh_Actor1->GetId();
+			StaticMesh* Mesh_Entity1 = w.AddComponent<StaticMesh>(Entity1, PlaneMesh);
+			ECS::ComponentUID_t MeshID_Entity1 = Mesh_Entity1->GetId();
 
 			const char* CubeMesh = "Cube.fbx";
-			StaticMesh* Mesh_Actor2 = w.AddComponent<StaticMesh>(Actor2, CubeMesh);
-			ECS::ComponentUID_t MeshID_Actor2 = Mesh_Actor2->GetId();
+			StaticMesh* Mesh_Entity2 = w.AddComponent<StaticMesh>(Entity2, CubeMesh);
+			ECS::ComponentUID_t MeshID_Entity2 = Mesh_Entity2->GetId();
 
-			StaticMesh* pMesh_Actor2Ref = w.GetComponentById<StaticMesh>(MeshID_Actor2);
-			RUNTIME_ASSERT(pMesh_Actor2Ref->Path == CubeMesh);
+			StaticMesh* pMesh_Entity2Ref = w.GetComponentById<StaticMesh>(MeshID_Entity2);
+			RuntimeAssert(pMesh_Entity2Ref->Path == CubeMesh);
 
-			StaticMesh* pMesh_Actor1Ref = w.GetComponentById<StaticMesh>(MeshID_Actor1);
-			RUNTIME_ASSERT(pMesh_Actor1Ref->Path == PlaneMesh);
+			StaticMesh* pMesh_Entity1Ref = w.GetComponentById<StaticMesh>(MeshID_Entity1);
+			RuntimeAssert(pMesh_Entity1Ref->Path == PlaneMesh);
 		}
 
-		printf("All Tests Passed!\n");
+		// Remove Components
+		{
+			ECS::EntityAdmin w;
+			ECS::Entity_t Entity = w.CreateEntity();
+
+			float Color1[3] = { 1, 2, 3 };
+			float Brightness1 = 1.0f;
+			PointLight* pLight1 = w.AddComponent<PointLight>(Entity, Brightness1, Color1);
+
+			float Color2[3] = { 4, 5, 6 };
+			float Brightness2 = 2.0f;
+			PointLight* pLight2 = w.AddComponent<PointLight>(Entity, Brightness2, Color2);
+			ECS::ComponentUID_t Light2ID = pLight2->GetId();
+
+			float Color3[3] = { 7, 8, 9 };
+			float Brightness3 = 3.0f;
+			PointLight* pLight3 = w.AddComponent<PointLight>(Entity, Brightness3, Color3);
+
+			w.RemoveComponentById<PointLight>(Light2ID);
+
+			RuntimeAssert(pLight3->Brightness == Brightness3);
+		}
+
+		DebugLog("[Test Suite] - All Tests Passed!\n");
 		return 0;
 	}
 
@@ -100,7 +120,7 @@ namespace Debug
 		// Component iteration speed.
 		// Loop over a lot of components and retrieve a value;
 		{
-			ECS::Actor_t DefaultActor;
+			ECS::Entity_t DefaultEntity;
 			std::vector<PointLight*> LightPointers;
 			ECS::GenericComponentMap<PointLight> LightMap;
 
@@ -113,7 +133,7 @@ namespace Debug
 				float Brightness = Fac;
 
 				LightPointers.push_back(new PointLight(Brightness, Color)); // Allocate on the heap. Immediate red flag.
-				LightMap.AddComponent(DefaultActor, Brightness, Color);
+				LightMap.AddComponent(DefaultEntity, Brightness, Color);
 			}
 
 			// Test pointer version.
@@ -139,7 +159,7 @@ namespace Debug
 			}
 
 			// Make sure our optimized method is faster.
-			RUNTIME_ASSERT(PointerIterTimer.GetElapsedNanos() > MapIterTimer.GetElapsedNanos());
+			RuntimeAssert(PointerIterTimer.GetElapsedNanos() > MapIterTimer.GetElapsedNanos());
 
 			// Quick cleanup...
 			for (size_t i = 0; i < InstCount; ++i)
@@ -150,15 +170,15 @@ namespace Debug
 
 		// Geometry Systems
 		{
-			ECS::World w;
-			ECS::Actor_t Actor1 = w.CreateActor();
+			ECS::EntityAdmin w;
+			ECS::Entity_t Entity1 = w.CreateEntity();
 
 			constexpr uint32_t InstCount = 10000;
 			char Path[64];
 			for (size_t i = 0; i < InstCount; ++i)
 			{
 				sprintf_s(Path, "Path: %zi", i);
-				w.AddComponent<StaticMesh>(Actor1, Path);
+				w.AddComponent<StaticMesh>(Entity1, Path);
 			}
 
 			GeometryProcessor GeomProcess(w);
@@ -170,8 +190,8 @@ namespace Debug
 
 		// Light System
 		{
-			ECS::World w;
-			ECS::Actor_t DefaultActor = w.CreateActor();
+			ECS::EntityAdmin w;
+			ECS::Entity_t DefaultEntity = w.CreateEntity();
 
 			constexpr uint32_t InstCount = 10000;
 			for (size_t i = 0; i < InstCount; ++i)
@@ -180,7 +200,7 @@ namespace Debug
 				float Color[3] = { Fac * 2, Fac * 4, Fac * 6 };
 				float Brightness = Fac;
 
-				w.AddComponent<PointLight>(DefaultActor, Brightness, Color);
+				w.AddComponent<PointLight>(DefaultEntity, Brightness, Color);
 			}
 
 			LightProcessor LightProcessor(w);
@@ -191,7 +211,7 @@ namespace Debug
 		}
 
 
-		printf("All performace tests passed!\n");
+		DebugLog("[Test Suite] - All performace tests passed!\n");
 	}
 
 }

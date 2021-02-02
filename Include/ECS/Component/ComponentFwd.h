@@ -1,6 +1,10 @@
 #pragma once
 
+#include "ECS/Core/Core.h"
+#include "ECS/EntityAdmin/EntityFwd.h"
+
 #include <string_view>
+
 
 
 namespace ECS 
@@ -10,12 +14,12 @@ namespace ECS
 		Hashed identifier for component type. Unique
 		for each component, but not each instance.
 	*/
-	typedef uint64_t ComponentHash_t;
+	typedef unsigned long long ComponentHash_t;
 
 	/*
 		Unique identifier for each component instance.
 	*/
-	typedef uint64_t ComponentUID_t;
+	typedef unsigned long long ComponentUID_t;
 
 	/*
 		Base class for all components that wish to be used by the code ECS system.
@@ -27,37 +31,56 @@ namespace ECS
 	{
 	protected:
 		ComponentUID_t m_UID;
-		Actor_t m_Owner;
+		Entity_t m_Owner;
+
 	public:
 
 		/*
-			returns the components unique ID.
+			Returns the components unique ID.
 		*/
-		inline ComponentUID_t GetId() const noexcept(true) { return m_UID; }
+		ECS_FORCE_INLINE ComponentUID_t GetId() const noexcept(true) { return m_UID; }
 
 		/*
 			Set the components unique ID.
 		*/
-		inline void SetID(const ComponentUID_t& ID) noexcept(true) { m_UID = ID; }
+		ECS_FORCE_INLINE void SetId(const ComponentUID_t& ID) noexcept(true) { m_UID = ID; }
 
-		bool operator ==(const ComponentType& rhs)
+
+		ECS_FORCE_INLINE bool operator ==(const ComponentType& rhs)
 		{
-			return this->GetId() == rhs.GetID();
+			return this->GetId() == rhs.GetId();
 		}
 
+		ECS_FORCE_INLINE bool operator !=(const ComponentType& rhs)
+		{
+			return !(this == rhs);
+		}
 
 	protected:
 		ComponentBase()
 		{
 			// Zero the component.
-			::memset(this, 0, sizeof(ComponentBase<ComponentType>));
+			ZeroMemRanged(this, sizeof(ComponentBase<ComponentType>));
 
 			// Register the ID.
-			m_UID = s_ComponentID++;
+			RegisterNewId(m_UID);
 		}
 		virtual ~ComponentBase() = default;
 
 	private:
+		/*
+			Registers a new it for this component type.
+			@param OutId - The Id to register.
+		*/
+		ECS_FORCE_INLINE static void RegisterNewId(ComponentUID_t& OutId)
+		{
+			OutId = s_ComponentID++;
+		}
+
+	private:
+		/*
+			Static Id counter for all components of this type.
+		*/
 		static ComponentUID_t s_ComponentID;
 	};
 

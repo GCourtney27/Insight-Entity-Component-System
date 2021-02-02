@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#include "ECS/Component/Component_Fwd.h"
+#include "ECS/Component/ComponentFwd.h"
 
 
 struct PointLight : public ECS::ComponentBase<PointLight>
@@ -32,7 +32,7 @@ struct PointLight : public ECS::ComponentBase<PointLight>
 
 	PointLight(const PointLight& rhs)
 	{
-		printf("WARNING: Copying component\n");
+		DebugLog("WARNING: Copying component\n");
 		Brightness = rhs.Brightness;
 		constexpr unsigned int ColorSize = sizeof(Color) / sizeof(float);
 		for (uint8_t i = 0; i < ColorSize; ++i)
@@ -90,7 +90,7 @@ struct TestComponent : public ECS::ComponentBase<TestComponent>
 	virtual ~TestComponent() = default;
 	TestComponent(const TestComponent& rhs)
 	{
-		printf("WARNING: Copying component\n");
+		DebugLog("WARNING: Copying component\n");
 	}
 	
 	TestComponent(int _MyValue)
